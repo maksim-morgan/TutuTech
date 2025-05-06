@@ -4,7 +4,7 @@ import SnapKit
 class CityTableViewController: UIViewController, UITableViewDelegate {
     
     private let tableViewScreen = CityTableView()
-    private let homeViewModel = HomeViewModel()
+    private let homeViewModel: HomeViewModel
     private let apiService = ApiService()
     
     override func viewDidLoad() {
@@ -17,6 +17,15 @@ class CityTableViewController: UIViewController, UITableViewDelegate {
         tableViewScreen.getTableView().delegate = self
         tableViewScreen.getTableView().dataSource = self
         tableViewScreen.getSearchBar().delegate = self
+    }
+    
+    init(homeViewModel: HomeViewModel) {
+        self.homeViewModel = homeViewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
     private func setupHomeView() {

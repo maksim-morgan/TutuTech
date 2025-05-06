@@ -8,25 +8,27 @@
 import Foundation
 import UIKit
 
-protocol CityTableViewProtocol {
-    var cities: [CityWeather] { get }
-    var filteredCities: [CityWeather] { get set }
-    var isDataFromCache: Bool { get }
-}
-
 class HomeViewModel: CityTableViewProtocol {
     private(set) var cities: [CityWeather]
     var filteredCities: [CityWeather]
     private(set) var isDataFromCache = false
-    var apiService = ApiService()
-    private let storageService = StorageService()
-    var networkMonitor = NetworkMonitor()
     
-    init() {
+    let apiService: ApiService
+    private let storageService: StorageService
+    private let networkMonitor: NetworkMonitor
+    private let router: AlertRouter
+    
+    init(apiService: ApiService, storageService: StorageService, networkMonitor: NetworkMonitor, router: AlertRouter) {
+       
+        self.apiService = apiService
+        self.storageService = storageService
+        self.networkMonitor = networkMonitor
+        self.router = router
+        
         cities = storageService.loadCities()
         filteredCities = cities
         if cities.isEmpty {
-            cities = [
+            self.cities = [
                 CityWeather(name: "Boston", latitude: 42.361145, longitude: -71.057083, temperature: ""),
                 CityWeather(name: "New York", latitude: 40.730610, longitude: -73.935242, temperature: ""),
                 CityWeather(name: "Los Angeles", latitude: 34.052235, longitude: -118.243683, temperature: ""),
@@ -36,15 +38,9 @@ class HomeViewModel: CityTableViewProtocol {
         }
     }
     
-    func showAlert() {
-        let alert = UIAlertController(title: "No internet", message: "Internet connection is required", preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-        UIApplication.shared.windows.first?.rootViewController?.present(alert, animated: true)
-    }
-    
     func fetchTemperatures(completion: @escaping () -> Void) {
         if networkMonitor.isConnected == false {
-            showAlert()
+            router.showAlert()
         }
         
         let group = DispatchGroup()

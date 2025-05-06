@@ -14,8 +14,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         
+        let apiService = ApiService()
+        let storageService = StorageService()
+        let networkMonitor = NetworkMonitor()
+        let router = AlertRouter()
+        let viewModel = HomeViewModel(apiService: apiService, storageService: storageService, networkMonitor: networkMonitor, router: router)
         window = UIWindow()
-        window?.rootViewController = UINavigationController(rootViewController: CityTableViewController())
+        window?.rootViewController = UINavigationController(rootViewController: CityTableViewController(homeViewModel: viewModel))
         window?.makeKeyAndVisible()
         
         return true
