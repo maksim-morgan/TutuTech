@@ -72,10 +72,17 @@ class HomeViewModel: CityTableViewProtocol {
         }
     }
 
-    func addCity(with name: String, latitude: Double, longitude: Double, completion: @escaping () -> Void) {
-        apiService.fetchWeather(lat: latitude, lon: longitude) { [weak self] temperature, time, windSpeed, humidity in
+    func addCity(with info: CityInfo, completion: @escaping () -> Void) {
+        apiService.fetchWeather(lat: info.latitude, lon: info.longitude) { [weak self] temperature, time, windSpeed, humidity in
             guard let self else { return }
-            let newCity = CityWeather(name: name, latitude: latitude, longitude: longitude, temperature: "\(temperature)°C")
+            
+            let newCity = CityWeather(
+                name: info.name,
+                latitude: info.latitude,
+                longitude: info.longitude,
+                temperature: "\(temperature)°C"
+            )
+            
             self.cities.append(newCity)
             self.filteredCities = self.cities
             self.storageService.saveCities(self.cities)

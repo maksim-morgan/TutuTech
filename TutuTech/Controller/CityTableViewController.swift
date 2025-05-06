@@ -112,11 +112,11 @@ extension CityTableViewController: UISearchBarDelegate {
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         guard let query = searchBar.text, !query.isEmpty else { return }
         searchBar.resignFirstResponder()
-        
+
         if homeViewModel.cities.contains(where: { $0.name.lowercased() == query.lowercased() }) {
             return
         }
-        
+
         homeViewModel.apiService.fetchCityCoordinates(cityName: query) { [weak self] lat, lon in
             guard let self else { return }
             
@@ -129,7 +129,8 @@ extension CityTableViewController: UISearchBarDelegate {
                 return
             }
             
-            self.homeViewModel.addCity(with: query, latitude: lat, longitude: lon) {
+            let cityInfo = CityInfo(name: query, latitude: lat, longitude: lon)
+            self.homeViewModel.addCity(with: cityInfo) {
                 DispatchQueue.main.async {
                     self.tableViewScreen.getTableView().reloadData()
                 }
