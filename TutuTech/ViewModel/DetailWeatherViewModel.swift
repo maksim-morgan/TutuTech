@@ -70,21 +70,6 @@ final class DetailWeatherViewModel {
             }
         }
     }
-    
-    func fetchAllCitiesWeather(cities: [CityWeather]) {
-        let dispatchGroup = DispatchGroup()
-        
-        for city in cities {
-            dispatchGroup.enter()
-            fetchWeather(lat: city.latitude, lon: city.longitude) {
-                dispatchGroup.leave()
-            }
-        }
-        
-        dispatchGroup.notify(queue: .main) {
-            self.onDataUpdated?()
-        }
-    }
         
     private func formatTime(_ iso: String) -> String {
         let input = DateFormatter()
