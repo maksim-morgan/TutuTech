@@ -9,15 +9,15 @@ import Foundation
 import UIKit
 import SnapKit
 
-final class SecondViewController: UIViewController {
+final class DetailWeatherViewController: UIViewController {
     
-    private let viewModel: SecondViewModel
+    let viewModel: DetailWeatherViewModel
     private let cityName: String
-    private let secondView = SecondViewUI()
+    private let secondView = DetailWeatherView()
     private var homeLat: Double = 0
     private var homeLon: Double = 0
     
-    init(viewModel: SecondViewModel, cityName: String) {
+    init(viewModel: DetailWeatherViewModel, cityName: String) {
         self.viewModel = viewModel
         self.cityName = cityName
         super.init(nibName: nil, bundle: nil)
@@ -31,18 +31,11 @@ final class SecondViewController: UIViewController {
         super.viewDidLoad()
         title = cityName
         bindViewModel()
-        viewModel.fetchWeather(lat: homeLat, lon: homeLon, completion: {
-            self.viewModel.onDataUpdated?()
-        })
+        viewModel.onViewDidLoad(lat: homeLat, lon: homeLon)
     }
 
     override func loadView() {
         view = secondView
-    }
-
-    func setCoordinates(lat: Double, lon: Double) {
-        homeLat = lat
-        homeLon = lon
     }
 
     private func bindViewModel() {

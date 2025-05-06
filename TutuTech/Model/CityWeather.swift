@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import UIKit
 
 struct CityWeather: Codable {
     let name: String

@@ -8,12 +8,18 @@
 import Foundation
 import UIKit
 
-class HomeViewModel {
-    var cities: [CityWeather] = []
-    var filteredCities: [CityWeather] = []
+protocol CityTableViewProtocol {
+    var cities: [CityWeather] { get }
+    var filteredCities: [CityWeather] { get set }
+    var isDataFromCache: Bool { get }
+}
+
+class HomeViewModel: CityTableViewProtocol {
+    private(set) var cities: [CityWeather]
+    var filteredCities: [CityWeather]
+    private(set) var isDataFromCache = false
     var apiService = ApiService()
     private let storageService = StorageService()
-    var isDataFromCache = false
     var networkMonitor = NetworkMonitor()
     
     init() {

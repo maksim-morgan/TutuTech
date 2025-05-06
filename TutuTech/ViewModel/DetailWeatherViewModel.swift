@@ -7,7 +7,7 @@
 
 import Foundation
 
-final class SecondViewModel {
+final class DetailWeatherViewModel {
     
     var temperature: String = ""
     var time: String = ""
@@ -17,6 +17,12 @@ final class SecondViewModel {
     private let apiService = ApiService()
     private let networkMonitor = NetworkMonitor()
     private let storageService = StorageService()
+    
+    func onViewDidLoad(lat: Double, lon: Double) {
+        fetchWeather(lat: lat, lon: lon) {
+            self.onDataUpdated?()
+        }
+    }
     
     func fetchWeather(lat: Double, lon: Double, completion: @escaping () -> Void) {
         if networkMonitor.isConnected {
@@ -28,7 +34,7 @@ final class SecondViewModel {
                 self.windSpeed = "\(wind) m/s"
                 self.humidity = "\(Int(humidity ?? 0))%"
                 
-                let detailedWeather = DetailedWeather(
+                let detailedWeather = DetailWeather(
                     latitude: lat,
                     longitude: lon,
                     temperature: self.temperature,

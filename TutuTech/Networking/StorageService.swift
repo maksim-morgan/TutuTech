@@ -29,7 +29,7 @@ final class StorageService {
     }
     
     // MARK: - Работа с детальной погодой
-    func saveDetailedWeather(_ weather: DetailedWeather) {
+    func saveDetailedWeather(_ weather: DetailWeather) {
         var weathers = loadAllDetailedWeather()
         weathers.removeAll { $0.latitude == weather.latitude && $0.longitude == weather.longitude }
         weathers.append(weather)
@@ -39,14 +39,14 @@ final class StorageService {
         }
     }
     
-    func loadDetailedWeather(forLatitude latitude: Double, longitude: Double) -> DetailedWeather? {
+    func loadDetailedWeather(forLatitude latitude: Double, longitude: Double) -> DetailWeather? {
         let weathers = loadAllDetailedWeather()
         return weathers.first { $0.latitude == latitude && $0.longitude == longitude }
     }
     
-    private func loadAllDetailedWeather() -> [DetailedWeather] {
+    private func loadAllDetailedWeather() -> [DetailWeather] {
         guard let data = userDefaults.data(forKey: detailedWeatherKey),
-              let weathers = try? JSONDecoder().decode([DetailedWeather].self, from: data) else {
+              let weathers = try? JSONDecoder().decode([DetailWeather].self, from: data) else {
             return []
         }
         return weathers

@@ -1,10 +1,11 @@
 import UIKit
+import SnapKit
 
-class HomeViewController: UIViewController, UITableViewDelegate {
+class CityTableViewController: UIViewController, UITableViewDelegate {
     
-    let homeView = HomeView()
-    var homeViewModel = HomeViewModel()
-    var apiService = ApiService()
+    private let tableViewScreen = CityTableView()
+    private let homeViewModel = HomeViewModel()
+    private let apiService = ApiService()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -13,14 +14,14 @@ class HomeViewController: UIViewController, UITableViewDelegate {
         setupNavigationBarStyle()
         addKeyboardDismissTap()
         fetchTemperatures()
-        homeView.tableView.delegate = self
-        homeView.tableView.dataSource = self
-        homeView.searchBar.delegate = self
+        tableViewScreen.getTableView().delegate = self
+        tableViewScreen.getTableView().dataSource = self
+        tableViewScreen.getSearchBar().delegate = self
     }
     
     private func setupHomeView() {
-        view.addSubview(homeView)
-        homeView.snp.makeConstraints { make in
+        view.addSubview(tableViewScreen)
+        tableViewScreen.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
     }
@@ -28,13 +29,13 @@ class HomeViewController: UIViewController, UITableViewDelegate {
     private func setupNavigationBarStyle() {
         navigationController?.navigationBar.prefersLargeTitles = true
         navigationController?.navigationBar.largeTitleTextAttributes = [
-            .foregroundColor: UIColor.black
+            .foregroundColor: Constants.blackColor
         ]
         navigationController?.navigationBar.titleTextAttributes = [
-            .foregroundColor: UIColor.white
+            .foregroundColor: Constants.whiteColor
         ]
-        title = "Weather ⛅"
-        navigationController?.navigationBar.barTintColor = .white
+        title = Constants.title
+        navigationController?.navigationBar.barTintColor = Constants.whiteColor
         
     }
     
@@ -45,25 +46,35 @@ class HomeViewController: UIViewController, UITableViewDelegate {
     }
     
     @objc private func dismissKeyboard() {
-        homeView.searchBar.endEditing(true)
+        tableViewScreen.getSearchBar().endEditing(true)
     }
     
     private func fetchTemperatures() {
         homeViewModel.fetchTemperatures { [weak self] in
             DispatchQueue.main.async {
-                self?.homeView.tableView.reloadData()
+                self?.tableViewScreen.getTableView().reloadData()
             }
         }
     }
 }
 
-extension HomeViewController: UITableViewDataSource {
+// MARK: - Constants
+extension CityTableViewController {
+    enum Constants {
+        static let title: String = "Weather ⛅"
+        static let blackColor: UIColor = .black
+        static let whiteColor: UIColor = .white
+    }
+}
+
+// MARK: - UITableViewDataSource
+extension CityTableViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let city = homeViewModel.filteredCities[indexPath.row]
-        let secondVM = SecondViewModel()
-        let secondVC = SecondViewController(viewModel: secondVM, cityName: city.name)
-        secondVC.setCoordinates(lat: city.latitude, lon: city.longitude)
+        let secondVM = DetailWeatherViewModel()
+        let secondVC = DetailWeatherViewController(viewModel: secondVM, cityName: city.name)
+        secondVC.viewModel.onViewDidLoad(lat: city.latitude, lon: city.longitude)
         navigationController?.pushViewController(secondVC, animated: true)
     }
     
@@ -72,7 +83,7 @@ extension HomeViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = UITableViewCell(style: .value1, reuseIdentifier: "cell")
+        let cell = CityTableViewCell(style: .value1, reuseIdentifier: "CityCell")
         let city = homeViewModel.filteredCities[indexPath.row]
         cell.textLabel?.text = city.name
         cell.detailTextLabel?.text = city.temperature
@@ -81,11 +92,12 @@ extension HomeViewController: UITableViewDataSource {
     }
 }
 
-extension HomeViewController: UISearchBarDelegate {
+// MARK: - UISearchBarDelegate
+extension CityTableViewController: UISearchBarDelegate {
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         homeViewModel.searchCities(query: searchText)
-        homeView.tableView.reloadData()
+        tableViewScreen.getTableView().reloadData()
     }
     
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
@@ -110,7 +122,7 @@ extension HomeViewController: UISearchBarDelegate {
             
             self.homeViewModel.addCity(with: query, latitude: lat, longitude: lon) {
                 DispatchQueue.main.async {
-                    self.homeView.tableView.reloadData()
+                    self.tableViewScreen.getTableView().reloadData()
                 }
             }
         }
@@ -119,6 +131,6 @@ extension HomeViewController: UISearchBarDelegate {
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
         searchBar.resignFirstResponder()
         homeViewModel.filteredCities = homeViewModel.cities
-        homeView.tableView.reloadData()
+        tableViewScreen.getTableView().reloadData()
     }
 }
