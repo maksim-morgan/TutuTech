@@ -8,7 +8,7 @@
 import Foundation
 import UIKit
 
-class HomeViewModel: CityTableViewProtocol {
+class CityTableViewModel: CityTableViewProtocol {
     private(set) var cities: [CityWeather]
     var filteredCities: [CityWeather]
     private(set) var isDataFromCache = false

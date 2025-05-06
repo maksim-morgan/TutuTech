@@ -5,7 +5,7 @@ class CityTableViewController: UIViewController, UITableViewDelegate {
     
     private let alertRouter: AlertRouter
     private let tableViewScreen = CityTableView()
-    private let homeViewModel: HomeViewModel
+    private let homeViewModel: CityTableViewModel
     private let apiService = ApiService()
     private let detailCityModel = DetailCityModel()
     private let storageService = StorageService()
@@ -23,7 +23,7 @@ class CityTableViewController: UIViewController, UITableViewDelegate {
         tableViewScreen.getSearchBar().delegate = self
     }
     
-    init(homeViewModel: HomeViewModel, alertRouter: AlertRouter) {
+    init(homeViewModel: CityTableViewModel, alertRouter: AlertRouter) {
         self.homeViewModel = homeViewModel
         self.alertRouter = alertRouter
         super.init(nibName: nil, bundle: nil)

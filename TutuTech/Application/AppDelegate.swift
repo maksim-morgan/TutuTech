@@ -18,7 +18,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let storageService = StorageService()
         let networkMonitor = NetworkMonitor()
         let router = AlertRouter()
-        let viewModel = HomeViewModel(apiService: apiService, storageService: storageService, networkMonitor: networkMonitor, router: router)
+        let viewModel = CityTableViewModel(apiService: apiService, storageService: storageService, networkMonitor: networkMonitor, router: router)
         window = UIWindow()
         window?.rootViewController = UINavigationController(rootViewController: CityTableViewController(homeViewModel: viewModel, alertRouter: router))
         window?.makeKeyAndVisible()
