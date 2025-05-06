@@ -24,7 +24,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let router = AlertRouter()
         let viewModel = HomeViewModel(apiService: apiService, storageService: storageService, networkMonitor: networkMonitor, router: router)
         let window = UIWindow(windowScene: windowScene)
-        window.rootViewController = UINavigationController(rootViewController: CityTableViewController(homeViewModel: viewModel))
+        window.rootViewController = UINavigationController(rootViewController: CityTableViewController(homeViewModel: viewModel, alertRouter: router))
         self.window = window
         window.makeKeyAndVisible()
     }

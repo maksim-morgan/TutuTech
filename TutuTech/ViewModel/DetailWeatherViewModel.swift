@@ -9,15 +9,21 @@ import Foundation
 
 final class DetailWeatherViewModel {
     
-    var temperature: String = ""
-    var time: String = ""
-    var windSpeed: String = ""
-    var humidity: String = ""
+    var timeFormatter = FormattedTime()
+    var detailCityModel: DetailCityModel
     var onDataUpdated: (() -> Void)?
-    private let apiService = ApiService()
-    private let networkMonitor = NetworkMonitor()
-    private let storageService = StorageService()
+    let apiService: ApiService
+    private let storageService: StorageService
+    private let networkMonitor: NetworkMonitor
     
+    init(detailCityModel: DetailCityModel, onDataUpdated: ( () -> Void)? = nil, apiService: ApiService, storageService: StorageService, networkMonitor: NetworkMonitor) {
+        self.detailCityModel = detailCityModel
+        self.onDataUpdated = onDataUpdated
+        self.apiService = apiService
+        self.storageService = storageService
+        self.networkMonitor = networkMonitor
+    }
+
     func onViewDidLoad(lat: Double, lon: Double) {
         fetchWeather(lat: lat, lon: lon) {
             self.onDataUpdated?()
@@ -25,65 +31,41 @@ final class DetailWeatherViewModel {
     }
     
     func fetchWeather(lat: Double, lon: Double, completion: @escaping () -> Void) {
-        if networkMonitor.isConnected {
-            apiService.fetchWeather(lat: lat, lon: lon) { [weak self] temp, time, wind, humidity in
-                guard let self else { return }
-                
-                self.temperature = "\(Int(temp))°C"
-                self.time = self.formatTime(time)
-                self.windSpeed = "\(wind) m/s"
-                self.humidity = "\(Int(humidity ?? 0))%"
-                
-                let detailedWeather = DetailWeather(
-                    latitude: lat,
-                    longitude: lon,
-                    temperature: self.temperature,
-                    time: self.time,
-                    windSpeed: self.windSpeed,
-                    humidity: self.humidity
-                )
-                self.storageService.saveDetailedWeather(detailedWeather)
-                
-                DispatchQueue.main.async {
-                    self.onDataUpdated?()
-                    completion()
-                }
-            }
-        } else {
-            // Загрузка из кэша
+        let updateUI: () -> Void = {
+            self.onDataUpdated?()
+            completion()
+        }
+
+        guard networkMonitor.isConnected else {
             if let cached = storageService.loadDetailedWeather(forLatitude: lat, longitude: lon) {
-                self.temperature = cached.temperature
-                self.time = cached.time
-                self.windSpeed = cached.windSpeed
-                self.humidity = cached.humidity
+                detailCityModel = .init(from: cached)
             } else {
-                // Заглушка
-                self.temperature = "N/A"
-                self.time = "N/A"
-                self.windSpeed = "N/A"
-                self.humidity = "N/A"
+                detailCityModel = .placeholder
             }
             
-            DispatchQueue.main.async {
-                self.onDataUpdated?()
-                completion()
-            }
+            DispatchQueue.main.async(execute: updateUI)
+            return
         }
-    }
-        
-    private func formatTime(_ iso: String) -> String {
-        let input = DateFormatter()
-        input.dateFormat = "yyyy-MM-dd'T'HH:mm"
-        input.locale = Locale(identifier: "en_US_POSIX")
-        
-        let output = DateFormatter()
-        output.timeStyle = .short
-        output.amSymbol = "am"
-        output.pmSymbol = "pm"
-        output.locale = Locale(identifier: "en_US")
-        
-        guard let date = input.date(from: iso) else { return "Invalid" }
-        return output.string(from: date)
+
+        apiService.fetchWeather(lat: lat, lon: lon) { [weak self] temp, time, wind, humidity in
+            guard let self else { return }
+
+            detailCityModel.temperature = "\(Int(temp))°C"
+            detailCityModel.time = timeFormatter.formatTime(time)
+            detailCityModel.windSpeed = "\(wind) m/s"
+            detailCityModel.humidity = "\(Int(humidity ?? 0))%"
+
+            let detailedWeather = DetailWeather(
+                latitude: lat,
+                longitude: lon,
+                temperature: detailCityModel.temperature,
+                time: detailCityModel.time,
+                windSpeed: detailCityModel.windSpeed,
+                humidity: detailCityModel.humidity
+            )
+            storageService.saveDetailedWeather(detailedWeather)
+            DispatchQueue.main.async(execute: updateUI)
+        }
     }
 }
     

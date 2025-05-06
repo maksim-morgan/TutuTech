@@ -3,9 +3,13 @@ import SnapKit
 
 class CityTableViewController: UIViewController, UITableViewDelegate {
     
+    private let alertRouter: AlertRouter
     private let tableViewScreen = CityTableView()
     private let homeViewModel: HomeViewModel
     private let apiService = ApiService()
+    private let detailCityModel = DetailCityModel()
+    private let storageService = StorageService()
+    private let networkMonitor = NetworkMonitor()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -19,8 +23,9 @@ class CityTableViewController: UIViewController, UITableViewDelegate {
         tableViewScreen.getSearchBar().delegate = self
     }
     
-    init(homeViewModel: HomeViewModel) {
+    init(homeViewModel: HomeViewModel, alertRouter: AlertRouter) {
         self.homeViewModel = homeViewModel
+        self.alertRouter = alertRouter
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -81,7 +86,7 @@ extension CityTableViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let city = homeViewModel.filteredCities[indexPath.row]
-        let secondVM = DetailWeatherViewModel()
+        let secondVM = DetailWeatherViewModel(detailCityModel: detailCityModel, apiService: apiService, storageService: storageService, networkMonitor: networkMonitor)
         let secondVC = DetailWeatherViewController(viewModel: secondVM, cityName: city.name)
         secondVC.viewModel.onViewDidLoad(lat: city.latitude, lon: city.longitude)
         navigationController?.pushViewController(secondVC, animated: true)
@@ -122,9 +127,7 @@ extension CityTableViewController: UISearchBarDelegate {
             
             guard let lat, let lon else {
                 DispatchQueue.main.async {
-                    let alert = UIAlertController(title: "City not found", message: "Please enter a valid city name.", preferredStyle: .alert)
-                    alert.addAction(UIAlertAction(title: "OK", style: .default))
-                    self.present(alert, animated: true)
+                    self.alertRouter.showAlert()
                 }
                 return
             }

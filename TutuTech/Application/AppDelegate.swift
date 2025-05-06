@@ -20,7 +20,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let router = AlertRouter()
         let viewModel = HomeViewModel(apiService: apiService, storageService: storageService, networkMonitor: networkMonitor, router: router)
         window = UIWindow()
-        window?.rootViewController = UINavigationController(rootViewController: CityTableViewController(homeViewModel: viewModel))
+        window?.rootViewController = UINavigationController(rootViewController: CityTableViewController(homeViewModel: viewModel, alertRouter: router))
         window?.makeKeyAndVisible()
         
         return true

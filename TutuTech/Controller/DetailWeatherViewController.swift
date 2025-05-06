@@ -41,10 +41,10 @@ final class DetailWeatherViewController: UIViewController {
     private func bindViewModel() {
         viewModel.onDataUpdated = { [weak self] in
             guard let self else { return }
-            secondView.timeLabel.text = "Time: \(viewModel.time)"
-            secondView.temperatureLabel.text = "Temperature: \(viewModel.temperature)"
-            secondView.windSpeedLabel.text = "Wind: \(viewModel.windSpeed)"
-            secondView.humidityLabel.text = "Humidity: \(viewModel.humidity)"
+            secondView.timeLabel.text = "Time: \(viewModel.detailCityModel.time)"
+            secondView.temperatureLabel.text = "Temperature: \(viewModel.detailCityModel.temperature)"
+            secondView.windSpeedLabel.text = "Wind: \(viewModel.detailCityModel.windSpeed)"
+            secondView.humidityLabel.text = "Humidity: \(viewModel.detailCityModel.humidity)"
         }
     }
 }
