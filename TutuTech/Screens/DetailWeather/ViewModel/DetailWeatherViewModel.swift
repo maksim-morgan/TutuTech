@@ -23,7 +23,7 @@ final class DetailWeatherViewModel {
         self.storageService = storageService
         self.networkMonitor = networkMonitor
     }
-
+    
     func onViewDidLoad(lat: Double, lon: Double) {
         fetchWeather(lat: lat, lon: lon) {
             self.onDataUpdated?()

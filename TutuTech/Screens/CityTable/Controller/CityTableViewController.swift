@@ -5,7 +5,7 @@ class CityTableViewController: UIViewController, UITableViewDelegate {
     
     private let alertRouter: AlertRouter
     private let tableViewScreen = CityTableView()
-    private let homeViewModel: CityTableViewModel
+    private let cityTableViewModel: CityTableViewModel
     private let apiService = ApiService()
     private let detailCityModel = DetailCityModel()
     private let storageService = StorageService()
@@ -23,8 +23,8 @@ class CityTableViewController: UIViewController, UITableViewDelegate {
         tableViewScreen.getSearchBar().delegate = self
     }
     
-    init(homeViewModel: CityTableViewModel, alertRouter: AlertRouter) {
-        self.homeViewModel = homeViewModel
+    init(cityTableViewModel: CityTableViewModel, alertRouter: AlertRouter) {
+        self.cityTableViewModel = cityTableViewModel
         self.alertRouter = alertRouter
         super.init(nibName: nil, bundle: nil)
     }
@@ -64,7 +64,7 @@ class CityTableViewController: UIViewController, UITableViewDelegate {
     }
     
     private func fetchTemperatures() {
-        homeViewModel.fetchTemperatures { [weak self] in
+        cityTableViewModel.fetchTemperatures { [weak self] in
             DispatchQueue.main.async {
                 self?.tableViewScreen.getTableView().reloadData()
             }
@@ -85,7 +85,7 @@ extension CityTableViewController {
 extension CityTableViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let city = homeViewModel.filteredCities[indexPath.row]
+        let city = cityTableViewModel.filteredCities[indexPath.row]
         let secondVM = DetailWeatherViewModel(detailCityModel: detailCityModel, apiService: apiService, storageService: storageService, networkMonitor: networkMonitor)
         let secondVC = DetailWeatherViewController(viewModel: secondVM, cityName: city.name)
         secondVC.viewModel.onViewDidLoad(lat: city.latitude, lon: city.longitude)
@@ -93,12 +93,12 @@ extension CityTableViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return homeViewModel.filteredCities.count
+        return cityTableViewModel.filteredCities.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = CityTableViewCell(style: .value1, reuseIdentifier: "CityCell")
-        let city = homeViewModel.filteredCities[indexPath.row]
+        let city = cityTableViewModel.filteredCities[indexPath.row]
         cell.textLabel?.text = city.name
         cell.detailTextLabel?.text = city.temperature
         cell.selectionStyle = .none
@@ -110,7 +110,7 @@ extension CityTableViewController: UITableViewDataSource {
 extension CityTableViewController: UISearchBarDelegate {
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        homeViewModel.searchCities(query: searchText)
+        cityTableViewModel.searchCities(query: searchText)
         tableViewScreen.getTableView().reloadData()
     }
     
@@ -118,11 +118,11 @@ extension CityTableViewController: UISearchBarDelegate {
         guard let query = searchBar.text, !query.isEmpty else { return }
         searchBar.resignFirstResponder()
 
-        if homeViewModel.cities.contains(where: { $0.name.lowercased() == query.lowercased() }) {
+        if cityTableViewModel.cities.contains(where: { $0.name.lowercased() == query.lowercased() }) {
             return
         }
 
-        homeViewModel.apiService.fetchCityCoordinates(cityName: query) { [weak self] lat, lon in
+        cityTableViewModel.apiService.fetchCityCoordinates(cityName: query) { [weak self] lat, lon in
             guard let self else { return }
             
             guard let lat, let lon else {
@@ -133,7 +133,7 @@ extension CityTableViewController: UISearchBarDelegate {
             }
             
             let cityInfo = CityInfo(name: query, latitude: lat, longitude: lon)
-            self.homeViewModel.addCity(with: cityInfo) {
+            self.cityTableViewModel.addCity(with: cityInfo) {
                 DispatchQueue.main.async {
                     self.tableViewScreen.getTableView().reloadData()
                 }
@@ -143,7 +143,7 @@ extension CityTableViewController: UISearchBarDelegate {
     
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
         searchBar.resignFirstResponder()
-        homeViewModel.filteredCities = homeViewModel.cities
+        cityTableViewModel.filteredCities = cityTableViewModel.cities
         tableViewScreen.getTableView().reloadData()
     }
 }
