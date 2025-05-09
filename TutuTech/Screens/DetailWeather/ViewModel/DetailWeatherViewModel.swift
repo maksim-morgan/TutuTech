@@ -42,7 +42,7 @@ final class DetailWeatherViewModel {
             } else {
                 detailCityModel = .placeholder
             }
-            
+
             DispatchQueue.main.async(execute: updateUI)
             return
         }
@@ -50,21 +50,29 @@ final class DetailWeatherViewModel {
         apiService.fetchWeather(lat: lat, lon: lon) { [weak self] temp, time, wind, humidity in
             guard let self else { return }
 
-            detailCityModel.temperature = "\(temp)°C"
-            detailCityModel.time = timeFormatter.formatTime(time)
-            detailCityModel.windSpeed = "\(wind) m/s"
-            detailCityModel.humidity = "\(Int(humidity ?? 0))%"
+            self.timeFormatter.getTimeZone(for: lat, longitude: lon) { timeZone in
+                let formattedTime = self.timeFormatter.formatTime(time, timeZone: timeZone)
 
-            let detailedWeather = DetailWeather(
-                latitude: lat,
-                longitude: lon,
-                temperature: detailCityModel.temperature,
-                time: detailCityModel.time,
-                windSpeed: detailCityModel.windSpeed,
-                humidity: detailCityModel.humidity
-            )
-            storageService.saveDetailedWeather(detailedWeather)
-            DispatchQueue.main.async(execute: updateUI)
+                self.detailCityModel = DetailCityModel(
+                    temperature: "\(temp)°C",
+                    time: formattedTime,
+                    windSpeed: "\(wind) m/s",
+                    humidity: "\(Int(humidity ?? 0))%"
+                )
+
+                let detailedWeather = DetailWeather(
+                    latitude: lat,
+                    longitude: lon,
+                    temperature: self.detailCityModel.temperature,
+                    time: self.detailCityModel.time,
+                    windSpeed: self.detailCityModel.windSpeed,
+                    humidity: self.detailCityModel.humidity
+                )
+
+                self.storageService.saveDetailedWeather(detailedWeather)
+
+                DispatchQueue.main.async(execute: updateUI)
+            }
         }
     }
 }
