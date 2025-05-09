@@ -50,7 +50,7 @@ final class DetailWeatherViewModel {
         apiService.fetchWeather(lat: lat, lon: lon) { [weak self] temp, time, wind, humidity in
             guard let self else { return }
 
-            detailCityModel.temperature = "\(Int(temp))°C"
+            detailCityModel.temperature = "\(temp)°C"
             detailCityModel.time = timeFormatter.formatTime(time)
             detailCityModel.windSpeed = "\(wind) m/s"
             detailCityModel.humidity = "\(Int(humidity ?? 0))%"

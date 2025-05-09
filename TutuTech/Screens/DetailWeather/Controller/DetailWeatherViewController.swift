@@ -14,12 +14,14 @@ final class DetailWeatherViewController: UIViewController {
     let viewModel: DetailWeatherViewModel
     private let cityName: String
     private let secondView = DetailWeatherView()
-    private var homeLat: Double = 0
-    private var homeLon: Double = 0
+    private var homeLat: Double
+    private var homeLon: Double
     
-    init(viewModel: DetailWeatherViewModel, cityName: String) {
+    init (viewModel: DetailWeatherViewModel, cityName: String, homeLat: Double, homeLon: Double) {
         self.viewModel = viewModel
         self.cityName = cityName
+        self.homeLat = homeLat
+        self.homeLon = homeLon
         super.init(nibName: nil, bundle: nil)
     }
 

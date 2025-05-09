@@ -10,14 +10,17 @@ class CityTableViewController: UIViewController, UITableViewDelegate {
     private let detailCityModel = DetailCityModel()
     private let storageService = StorageService()
     private let networkMonitor = NetworkMonitor()
+    private let refreshControl = UIRefreshControl()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+       
         setupHomeView()
         setupNavigationBarStyle()
         addKeyboardDismissTap()
         fetchTemperatures()
+        setupRefreshControl()
+        refreshData()
         tableViewScreen.getTableView().delegate = self
         tableViewScreen.getTableView().dataSource = self
         tableViewScreen.getSearchBar().delegate = self
@@ -31,6 +34,16 @@ class CityTableViewController: UIViewController, UITableViewDelegate {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    private func setupRefreshControl() {
+        refreshControl.addTarget(self, action: #selector(refreshData), for: .valueChanged)
+        tableViewScreen.getTableView().refreshControl = refreshControl
+    }
+    
+    @objc private func refreshData() {
+        fetchTemperatures()
+        refreshControl.endRefreshing()
     }
     
     private func setupHomeView() {
@@ -87,7 +100,7 @@ extension CityTableViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let city = cityTableViewModel.filteredCities[indexPath.row]
         let secondVM = DetailWeatherViewModel(detailCityModel: detailCityModel, apiService: apiService, storageService: storageService, networkMonitor: networkMonitor)
-        let secondVC = DetailWeatherViewController(viewModel: secondVM, cityName: city.name)
+        let secondVC = DetailWeatherViewController(viewModel: secondVM, cityName: city.name, homeLat: city.latitude, homeLon: city.longitude)
         secondVC.viewModel.onViewDidLoad(lat: city.latitude, lon: city.longitude)
         navigationController?.pushViewController(secondVC, animated: true)
     }
