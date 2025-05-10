@@ -10,6 +10,7 @@ import UIKit
 
 protocol AlertRouterProtocol {
     func showAlert()
+    func nothingWasFound()
 }
 
 final class AlertRouter: AlertRouterProtocol {
@@ -19,8 +20,13 @@ final class AlertRouter: AlertRouterProtocol {
         UIApplication.shared.windows.first?.rootViewController?.present(alert, animated: true)
     }
     
-    var presentingViewController: CityTableViewController?
+    func nothingWasFound() {
+        let noResultAlert = UIAlertController(title: Constants.noResult, message: Constants.nothingWasFound, preferredStyle: .alert)
+        noResultAlert.addAction(UIAlertAction(title: Constants.ok, style: .default, handler: nil))
+        UIApplication.shared.windows.first?.rootViewController?.present(noResultAlert, animated: true)
+    }
     
+    var presentingViewController: CityTableViewController?
     init(presentingViewController: CityTableViewController? = nil) {
         self.presentingViewController = presentingViewController
     }
@@ -32,5 +38,7 @@ extension AlertRouter {
         static let noInternet: String = "No internet"
         static let ok: String = "OK"
         static let descriptionMessage: String = "Internet connection is required"
+        static let noResult: String = "No result"
+        static let nothingWasFound: String = "Nothing was found"
     }
 }

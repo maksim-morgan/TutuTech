@@ -42,7 +42,7 @@ final class DetailWeatherViewModel {
             } else {
                 detailCityModel = .placeholder
             }
-
+            
             DispatchQueue.main.async(execute: updateUI)
             return
         }

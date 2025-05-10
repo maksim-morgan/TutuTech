@@ -99,7 +99,8 @@ extension CityTableViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let city = cityTableViewModel.filteredCities[indexPath.row]
-        let secondVM = DetailWeatherViewModel(detailCityModel: detailCityModel, apiService: apiService, storageService: storageService, networkMonitor: networkMonitor)
+        let model = DetailCityModel()
+        let secondVM = DetailWeatherViewModel(detailCityModel: model, apiService: apiService, storageService: storageService, networkMonitor: networkMonitor)
         let secondVC = DetailWeatherViewController(viewModel: secondVM, cityName: city.name, homeLat: city.latitude, homeLon: city.longitude)
         secondVC.viewModel.onViewDidLoad(lat: city.latitude, lon: city.longitude)
         navigationController?.pushViewController(secondVC, animated: true)
@@ -123,8 +124,17 @@ extension CityTableViewController: UITableViewDataSource {
 extension CityTableViewController: UISearchBarDelegate {
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        cityTableViewModel.searchCities(query: searchText)
-        tableViewScreen.getTableView().reloadData()
+        guard !searchText.isEmpty else {
+            cityTableViewModel.filteredCities = cityTableViewModel.cities
+            tableViewScreen.getTableView().reloadData()
+            return
+        }
+
+          cityTableViewModel.fetchSuggestions(query: searchText) { [weak self] in
+            DispatchQueue.main.async {
+                self?.tableViewScreen.getTableView().reloadData()
+            }
+        }
     }
     
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
@@ -140,7 +150,7 @@ extension CityTableViewController: UISearchBarDelegate {
             
             guard let lat, let lon else {
                 DispatchQueue.main.async {
-                    self.alertRouter.showAlert()
+                    self.alertRouter.nothingWasFound()
                 }
                 return
             }

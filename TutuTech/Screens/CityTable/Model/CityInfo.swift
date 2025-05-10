@@ -7,8 +7,10 @@
 
 import Foundation
 
-struct CityInfo {
+struct CityInfo: Hashable {
     let name: String
     let latitude: Double
     let longitude: Double
+
+    
 }

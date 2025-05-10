@@ -58,3 +58,29 @@ class ApiService {
     }
 }
 
+extension ApiService {
+    func fetchCitySuggestions(query: String, completion: @escaping ([CityInfo]) -> Void) {
+        let encoded = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? query
+        let urlString = "https://geocoding-api.open-meteo.com/v1/search?name=\(encoded)&count=10&language=en&format=json"
+
+        guard let url = URL(string: urlString) else { return }
+
+        URLSession.shared.dataTask(with: url) { data, response, error in
+            guard let data = data else { return }
+
+            do {
+                let result = try JSONDecoder().decode(GeoCodingResponse.self, from: data)
+                let suggestions = result.results
+                    .filter { ($0.population ?? 0) > 2000 }
+                    .map {
+                        CityInfo(name: $0.name, latitude: $0.latitude, longitude: $0.longitude)
+                    }
+                let uniqueSuggestions = Array(Set(suggestions))
+                completion(uniqueSuggestions)
+            } catch {
+                print(error)
+            }
+        }.resume()
+    }
+}
+

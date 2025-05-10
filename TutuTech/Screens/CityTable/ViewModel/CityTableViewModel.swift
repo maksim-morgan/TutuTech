@@ -70,6 +70,10 @@ class CityTableViewModel: CityTableViewProtocol {
                 return city.name.lowercased().contains(query.lowercased())
             }
         }
+        
+        if filteredCities.isEmpty {
+            router.nothingWasFound()
+        }
     }
 
     func addCity(with info: CityInfo, completion: @escaping () -> Void) {
@@ -86,6 +90,17 @@ class CityTableViewModel: CityTableViewProtocol {
             self.cities.append(newCity)
             self.filteredCities = self.cities
             self.storageService.saveCities(self.cities)
+            completion()
+        }
+    }
+    
+    func fetchSuggestions(query: String, completion: @escaping () -> Void) {
+        apiService.fetchCitySuggestions(query: query) { [weak self] suggestions in
+            guard let self else { return }
+
+            self.filteredCities = suggestions.map {
+                CityWeather(name: $0.name, latitude: $0.latitude, longitude: $0.longitude, temperature: "")
+            }
             completion()
         }
     }
