@@ -9,7 +9,7 @@ import Foundation
 import UIKit
 
 class CityTableViewModel: CityTableViewProtocol {
-    private(set) var cities: [CityWeather]
+    var cities: [CityWeather]
     var filteredCities: [CityWeather]
     private(set) var isDataFromCache = false
     

@@ -8,7 +8,7 @@
 import Foundation
 
 protocol CityTableViewProtocol {
-    var cities: [CityWeather] { get }
+    var cities: [CityWeather] { get set }
     var filteredCities: [CityWeather] { get set }
     var isDataFromCache: Bool { get }
 }

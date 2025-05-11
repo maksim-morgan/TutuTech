@@ -11,19 +11,21 @@ class CityTableViewController: UIViewController, UITableViewDelegate {
     private let storageService = StorageService()
     private let networkMonitor = NetworkMonitor()
     private let refreshControl = UIRefreshControl()
+    private lazy var resetButton = UIBarButtonItem(title: "Reset", style: .plain, target: self , action: #selector(resetToInitialState))
     
     override func viewDidLoad() {
         super.viewDidLoad()
        
+        resetToInitialState()
         setupHomeView()
         setupNavigationBarStyle()
         addKeyboardDismissTap()
         fetchTemperatures()
         setupRefreshControl()
         refreshData()
-        tableViewScreen.getTableView().delegate = self
-        tableViewScreen.getTableView().dataSource = self
-        tableViewScreen.getSearchBar().delegate = self
+        tableViewScreen.tableView.delegate = self
+        tableViewScreen.tableView.dataSource = self
+        tableViewScreen.searchBar.delegate = self
     }
     
     init(cityTableViewModel: CityTableViewModel, alertRouter: AlertRouter) {
@@ -38,7 +40,7 @@ class CityTableViewController: UIViewController, UITableViewDelegate {
     
     private func setupRefreshControl() {
         refreshControl.addTarget(self, action: #selector(refreshData), for: .valueChanged)
-        tableViewScreen.getTableView().refreshControl = refreshControl
+        tableViewScreen.tableView.refreshControl = refreshControl
     }
     
     @objc private func refreshData() {
@@ -63,7 +65,7 @@ class CityTableViewController: UIViewController, UITableViewDelegate {
         ]
         title = Constants.title
         navigationController?.navigationBar.barTintColor = Constants.whiteColor
-        
+        navigationItem.rightBarButtonItems = [resetButton]
     }
     
     private func addKeyboardDismissTap() {
@@ -73,15 +75,21 @@ class CityTableViewController: UIViewController, UITableViewDelegate {
     }
     
     @objc private func dismissKeyboard() {
-        tableViewScreen.getSearchBar().endEditing(true)
+        tableViewScreen.searchBar.endEditing(true)
     }
     
     private func fetchTemperatures() {
         cityTableViewModel.fetchTemperatures { [weak self] in
             DispatchQueue.main.async {
-                self?.tableViewScreen.getTableView().reloadData()
+                self?.tableViewScreen.tableView.reloadData()
             }
         }
+    }
+    
+   @objc private func resetToInitialState() {
+       cityTableViewModel.filteredCities = Array(cityTableViewModel.filteredCities.prefix(4))
+       cityTableViewModel.cities = cityTableViewModel.filteredCities
+       tableViewScreen.tableView.reloadData()
     }
 }
 
@@ -102,7 +110,6 @@ extension CityTableViewController: UITableViewDataSource {
         let model = DetailCityModel()
         let secondVM = DetailWeatherViewModel(detailCityModel: model, apiService: apiService, storageService: storageService, networkMonitor: networkMonitor)
         let secondVC = DetailWeatherViewController(viewModel: secondVM, cityName: city.name, homeLat: city.latitude, homeLon: city.longitude)
-        secondVC.viewModel.onViewDidLoad(lat: city.latitude, lon: city.longitude)
         navigationController?.pushViewController(secondVC, animated: true)
     }
     
@@ -126,13 +133,13 @@ extension CityTableViewController: UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         guard !searchText.isEmpty else {
             cityTableViewModel.filteredCities = cityTableViewModel.cities
-            tableViewScreen.getTableView().reloadData()
+            tableViewScreen.tableView.reloadData()
             return
         }
 
           cityTableViewModel.fetchSuggestions(query: searchText) { [weak self] in
             DispatchQueue.main.async {
-                self?.tableViewScreen.getTableView().reloadData()
+                self?.tableViewScreen.tableView.reloadData()
             }
         }
     }
@@ -140,7 +147,8 @@ extension CityTableViewController: UISearchBarDelegate {
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         guard let query = searchBar.text, !query.isEmpty else { return }
         searchBar.resignFirstResponder()
-
+        searchBar.text = ""
+        
         if cityTableViewModel.cities.contains(where: { $0.name.lowercased() == query.lowercased() }) {
             return
         }
@@ -158,7 +166,7 @@ extension CityTableViewController: UISearchBarDelegate {
             let cityInfo = CityInfo(name: query, latitude: lat, longitude: lon)
             self.cityTableViewModel.addCity(with: cityInfo) {
                 DispatchQueue.main.async {
-                    self.tableViewScreen.getTableView().reloadData()
+                    self.tableViewScreen.tableView.reloadData()
                 }
             }
         }
@@ -167,6 +175,6 @@ extension CityTableViewController: UISearchBarDelegate {
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
         searchBar.resignFirstResponder()
         cityTableViewModel.filteredCities = cityTableViewModel.cities
-        tableViewScreen.getTableView().reloadData()
+        tableViewScreen.tableView.reloadData()
     }
 }

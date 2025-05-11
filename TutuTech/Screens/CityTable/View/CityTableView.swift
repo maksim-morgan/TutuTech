@@ -12,8 +12,8 @@ import SnapKit
 final class CityTableView: UIView {
     
     private let imageView = UIImageView()
-    private let tableView = UITableView()
-    private let searchBar = UISearchBar()
+    private(set) var tableView = UITableView()
+    private(set) var searchBar = UISearchBar()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -68,14 +68,6 @@ final class CityTableView: UIView {
             make.leading.trailing.equalToSuperview()
             make.bottom.equalToSuperview()
         }
-    }
-    
-    func getTableView() -> UITableView {
-        return tableView
-    }
-    
-    func getSearchBar() -> UISearchBar {
-        return searchBar
     }
 }
 
