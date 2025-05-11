@@ -17,13 +17,13 @@ final class AlertRouter: AlertRouterProtocol {
     func showAlert() {
         let alert = UIAlertController(title: Constants.noInternet, message: Constants.descriptionMessage, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: Constants.ok, style: .default, handler: nil))
-        UIApplication.shared.windows.first?.rootViewController?.present(alert, animated: true)
+        presentingViewController?.present(alert, animated: true)
     }
     
     func nothingWasFound() {
         let noResultAlert = UIAlertController(title: Constants.noResult, message: Constants.nothingWasFound, preferredStyle: .alert)
         noResultAlert.addAction(UIAlertAction(title: Constants.ok, style: .default, handler: nil))
-        UIApplication.shared.windows.first?.rootViewController?.present(noResultAlert, animated: true)
+        presentingViewController?.present(noResultAlert, animated: true)
     }
     
     var presentingViewController: CityTableViewController?

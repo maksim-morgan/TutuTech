@@ -16,7 +16,13 @@ final class DetailWeatherViewModel {
     private let storageService: StorageService
     private let networkMonitor: NetworkMonitor
     
-    init(detailCityModel: DetailCityModel, onDataUpdated: ( () -> Void)? = nil, apiService: ApiService, storageService: StorageService, networkMonitor: NetworkMonitor) {
+    init(
+        detailCityModel: DetailCityModel,
+        onDataUpdated: ( () -> Void)? = nil,
+        apiService: ApiService,
+        storageService: StorageService,
+        networkMonitor: NetworkMonitor
+    ) {
         self.detailCityModel = detailCityModel
         self.onDataUpdated = onDataUpdated
         self.apiService = apiService
